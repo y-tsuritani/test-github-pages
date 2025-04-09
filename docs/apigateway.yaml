@@ -1,119 +1,133 @@
-openapi: 3.0.0
+---
+swagger: "2.0"
 info:
-  version: 0.0.0
-  title: RESTful API
-  description: >-
-    バックエンドAPI
-servers:
-  - url: 'http://{host}:8081/api/v1'
-    description: go service api server endpoint application
-    variables:
-      host:
-        default: localhost
-        enum:
-          - localhost
+  description: "サンプルAPI"
+  version: "1.0"
+  title: "hogehoge"
+host: "test-api.amazonaws.com"
+basePath: "/v1"
+schemes:
+  - "https"
 paths:
-  /register:
-    post:
-      tags:
-        - user
-      summary: ユーザ登録
-      description: |
-        クライアントが入力する情報をもとにユーザ情報を登録する
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: 山田太郎
-                email:
-                  type: string
-                  format: email
-                  example: yamada@hoge.hoge
-                password:
-                  type: string
-                  format: password
-                  example: qwerty123456789
-              required:
-                - name
-                - email
-                - password
+  /content:
+    get:
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "targets"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "key"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "testparam1"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "testparam2"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "testparam3"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "testparam4"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "testparam5"
+          in: "query"
+          required: false
+          type: "string"
+        - name: "testparam6"
+          in: "header"
+          required: false
+          type: "string"
       responses:
-        '200':
-          description: ユーザ情報登録成功
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  statusCode:
-                    type: integer
-                    format: number
-                    example: 200
-                  method:
-                    type: string
-                    example: "POST"
-                  message:
-                    type: string
-                    example: "ユーザ登録に成功しました。"
-                  data:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        example: 1
-                required:
-                  - statusCode
-                  - method
-                  - message
-                  - data
-        '409':
-          description: |
-            登録済みのメールアドレス
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  statusCode:
-                    type: integer
-                    format: number
-                    example: 409
-                  method:
-                    type: string
-                    example: "POST"
-                  message:
-                    type: string
-                    example: "登録済みのメールアドレスです。"
-                  data:
-                    type: object
-                    example: null
-        '500':
-          $ref: '#/components/responses/500Error'
-components:
-  responses:
-    500Error:
-      description: |
-        サーバー上のエラー
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              statusCode:
-                type: integer
-                format: int64
-                example: "500"
-              method:
-                type: string
-                example: "POST"
-              message:
-                type: string
-                example: "サーバー側で何らかのエラーが発生しました。"
-              data:
-                type: object
-                example: null
+        "200":
+          description: "200 response"
+      x-amazon-apigateway-integration:
+        credentials: "arn:aws:iam::123456789:role/test-role"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:123456789:function:test-consumer-shareBatch/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseTemplates:
+              application/json:
+                "#set($inputRoot = $input.path('$'))\r\n#if($inputRoot.statusCode\
+                \ == 200)\r\n## 200 の場合は 200 を返却し ok のみを表示する\r\nok\r\n#elseif($inputRoot.statusCode\
+                \ == 500 || $context.responseOverride.status == 502)\r\n## 500 の場合\
+                は 500 にステータスコードを書き換え返却し、何も表示しない\r\n#set($context.responseOverride.status\
+                \ = 500)\r\n#elseif($inputRoot.statusCode == 400)\r\n## 400 の場合は 400\
+                \ にステータスコードを書き換え返却し、何も表示しない\r\n#set($context.responseOverride.status\
+                \ = 400)\r\n#else\r\n## 上記以外の場合 200 を返却し ok のみを表示する\r\n## 非同期実行の場合\
+                はこちらになる\r\nok\r\n#end"
+        requestParameters:
+          integration.request.header.X-Amz-Invocation-Type: "method.request.header.InvocationType"
+        requestTemplates:
+          application/json:
+            "#set($allParams = $input.params())\n{\n\"body-json\"\
+            \ : $input.json('$'),\n\"params\" : {\n#foreach($type in $allParams.keySet())\n\
+            \    #set($params = $allParams.get($type))\n\"$type\" : {\n    #foreach($paramName\
+            \ in $params.keySet())\n    \"$paramName\" : \"$util.escapeJavaScript($params.get($paramName))\"\
+            \n        #if($foreach.hasNext),#end\n    #end\n}\n    #if($foreach.hasNext),#end\n\
+            #end\n}\n}"
+        passthroughBehavior: "when_no_templates"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws"
+  /maintenance:
+    get:
+      parameters:
+        - name: "action"
+          in: "query"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "200 response"
+      x-amazon-apigateway-integration:
+        credentials: "arn:aws:iam::123456789:role/test-role"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:123456789:function:test-consumer-maintenance:release/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        type: "aws_proxy"
+  /static-contents-list:
+    get:
+      responses:
+        "200":
+          description: "200 response"
+      x-amazon-apigateway-integration:
+        credentials: "arn:aws:iam::471112501266:role/test-role"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:123456789:function:test-consumer-staticContentDateSelect:release/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        type: "aws_proxy"
+x-amazon-apigateway-policy:
+  Version: "2012-10-17"
+  Statement:
+    - Effect: "Allow"
+      Principal: "*"
+      Action: "execute-api:Invoke"
+      Resource: "arn:aws:execute-api:ap-northeast-1:123456789:hogehoge/*"
+    - Effect: "Deny"
+      Principal: "*"
+      Action: "execute-api:Invoke"
+      Resource: "arn:aws:execute-api:ap-northeast-1:123456789:hogehoge/*"
+      Condition:
+        StringNotEquals:
+          aws:SourceVpce: "vpce-123456789abcdef0"
+x-amazon-apigateway-endpoint-configuration:
+  vpcEndpointIds:
+    - "vpce-123456789abcdef0"
