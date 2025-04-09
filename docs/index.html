@@ -28,5 +28,18 @@
         });
       };
     </script>
+    <script>
+      window.onload = () => {
+        window.ui = SwaggerUIBundle({
+          url: './apigateway2.yaml',
+          dom_id: '#swagger-ui',
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+          ],
+          layout: "StandaloneLayout",
+        });
+      };
+    </script>
   </body>
 </html>

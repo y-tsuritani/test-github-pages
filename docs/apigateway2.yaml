@@ -1,0 +1,69 @@
+---
+swagger: "2.0"
+info:
+  description: "コンシューマ画面へ利用する商品情報を取得するAPI"
+  version: "1.0"
+  title: "test-api-2"
+host: "hogehoge.execute-api.ap-northeast-1.amazonaws.com"
+basePath: "/v1"
+schemes:
+- "https"
+paths:
+  /shohin:
+    get:
+      parameters:
+      - name: "key"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "target"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "testparam1"
+        in: "query"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "200 response"
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        credentials: "arn:aws:iam::123456789:role/test-iam-role-api-consumer"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:123456789:function:test-consumer-s3Access:release/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+  /shohin/search:
+    post:
+      responses:
+        "200":
+          description: "200 response"
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        credentials: "arn:aws:iam::123456789:role/test-iam-role-api-consumer"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:123456789:function:test-consumer-opensearchAccess:release/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+x-amazon-apigateway-policy:
+  Version: "2012-10-17"
+  Statement:
+  - Effect: "Allow"
+    Principal: "*"
+    Action: "execute-api:Invoke"
+    Resource: "arn:aws:execute-api:ap-northeast-1:123456789:hogehoge/*"
+  - Effect: "Deny"
+    Principal: "*"
+    Action: "execute-api:Invoke"
+    Resource: "arn:aws:execute-api:ap-northeast-1:123456789:hogehoge/*"
+    Condition:
+      StringNotEquals:
+        aws:SourceVpce: "vpce-123456789abcdf0"
+x-amazon-apigateway-endpoint-configuration:
+  vpcEndpointIds:
+  - "vpce-123456789abcdf0"
