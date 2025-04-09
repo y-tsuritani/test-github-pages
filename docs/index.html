@@ -1,38 +1,35 @@
+<!-- HTML for static distribution bundle build -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swagger Petstore API Documentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.5/swagger-ui.css" />
-    <style>
-        html {
-            box-sizing: border-box;
-            overflow: -moz-hidden-unscrollable;
-            overflow: hidden;
-        }
-        *, *:before, *:after {
-            box-sizing: inherit;
-        }
-        body {
-            margin: 0;
-            background: #fafafa;
-        }
-    </style>
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
 </head>
+
 <body>
     <div id="swagger-ui"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.5/swagger-ui-bundle.js"> </script>
+    <script src="./swagger-ui-bundle.js" charset="UTF-8"> </script>
+    <script src="./swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+    <script src="./swagger-initializer.js" charset="UTF-8"> </script>
+
     <script>
-        const ui = SwaggerUIBundle({
-            url: "apigateway.yaml",
-            dom_id: '#swagger-ui',
-            presets: [
+            window.onload = () => {
+            window.ui = SwaggerUIBundle({
+                url: '../apigateway.yml',
+                dom_id: '#swagger-ui',
+                presets: [
                 SwaggerUIBundle.presets.apis,
                 SwaggerUIStandalonePreset
-            ],
-            layout: "StandaloneLayout"
-        });
+                ],
+                layout: "StandaloneLayout",
+            });
+        };
     </script>
 </body>
+
 </html>
